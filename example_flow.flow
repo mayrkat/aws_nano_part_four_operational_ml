@@ -1,0 +1,136 @@
+{
+  "metadata": {
+    "version": 1,
+    "disable_limits": false,
+    "instance_type": "ml.m5.4xlarge"
+  },
+  "parameters": [],
+  "nodes": [
+    {
+      "node_id": "30730182-a9a8-465d-8798-aacdd1fd5b20",
+      "type": "SOURCE",
+      "operator": "sagemaker.s3_source_0.1",
+      "parameters": {
+        "dataset_definition": {
+          "__typename": "S3CreateDatasetDefinitionOutput",
+          "datasetSourceType": "S3",
+          "name": "titanic.csv",
+          "description": null,
+          "s3ExecutionContext": {
+            "__typename": "S3ExecutionContext",
+            "s3Uri": "s3://udacitydatatitanic/titanic.csv",
+            "s3ContentType": "csv",
+            "s3HasHeader": true,
+            "s3FieldDelimiter": ",",
+            "s3DirIncludesNested": false,
+            "s3AddsFilenameColumn": false
+          }
+        }
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "default",
+          "sampling": {
+            "sampling_method": "sample_by_limit",
+            "limit_rows": 50000
+          }
+        }
+      ]
+    },
+    {
+      "node_id": "a633b2cf-6076-4db3-97d5-b3505849c9af",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.infer_and_cast_type_0.1",
+      "parameters": {},
+      "trained_parameters": {
+        "schema": {
+          "PassengerId": "long",
+          "Survived": "long",
+          "Pclass": "long",
+          "Name": "string",
+          "Sex": "string",
+          "Age": "long",
+          "SibSp": "long",
+          "Parch": "long",
+          "Ticket": "string",
+          "Fare": "float",
+          "Cabin": "string",
+          "Embarked": "string"
+        }
+      },
+      "inputs": [
+        {
+          "name": "default",
+          "node_id": "30730182-a9a8-465d-8798-aacdd1fd5b20",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "5b1c469f-1da7-4d40-b17c-9b198b3ff7be",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.handle_missing_0.1",
+      "parameters": {
+        "operator": "Impute",
+        "impute_parameters": {
+          "column_type": "Numeric",
+          "numeric_parameters": {
+            "strategy": "Mean",
+            "input_column": [
+              "Age"
+            ],
+            "output_column": "AgeImputed"
+          }
+        }
+      },
+      "trained_parameters": {
+        "impute_parameters": {
+          "numeric_parameters": {
+            "_hash": "d29fe00b521fd95f47309815d6c584be9f22e239",
+            "impute_value": 35.66120218579235
+          }
+        }
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "a633b2cf-6076-4db3-97d5-b3505849c9af",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "6a2c74f6-79cf-4ea0-ac14-d4249dd9ef33",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.cast_single_data_type_0.1",
+      "parameters": {
+        "column": "Survived",
+        "original_data_type": "Long",
+        "data_type": "bool"
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "5b1c469f-1da7-4d40-b17c-9b198b3ff7be",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    }
+  ]
+}
